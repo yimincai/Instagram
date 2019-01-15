@@ -19,11 +19,11 @@
         </tr>
         <tr>
             <td>Username/Email:</td>
-            <td><input type="email" size="25" name="acc"></td>
+            <td><input type="email" size="25" name="username"></td>
         </tr>
         <tr>
             <td>Password:</td>
-            <td><input type="password" size="25" name="pwd"></td>
+            <td><input type="password" size="25" name="password"></td>
         </tr>
         <tr>
             <td>Remember me</td>

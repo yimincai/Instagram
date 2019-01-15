@@ -27,12 +27,12 @@ public class CheckUserLogin extends HttpServlet {
 
         try {
 
-            String userid = request.getParameter("acc");
-            String pwd = request.getParameter("pwd");
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
             String checkbox = request.getParameter("remember_me");
 
             String sql = "SELECT * FROM `users_info` WHERE `email` =" +
-                    "'" + userid.toString() + "'" + " and `password` = " + "'" + pwd.toString() + "'";
+                    "'" + username.toString() + "'" + " and `password` = " + "'" + password.toString() + "'";
             System.out.println(sql);
 
             pstmt = conn.prepareStatement(sql);
@@ -44,13 +44,13 @@ public class CheckUserLogin extends HttpServlet {
             }
 
 
-            if (sqlEmail.equals(userid) && sqlPassword.equals(pwd)) {
-                session.setAttribute("acc", sqlEmail);
-                session.setAttribute("pwd", sqlPassword);
+            if (sqlEmail.equals(username) && sqlPassword.equals(password)) {
+                session.setAttribute("username", sqlEmail);
+                session.setAttribute("password", sqlPassword);
 
                 if ("1".equals(checkbox)) {
-                    Cookie accCookie = new Cookie("acc", sqlEmail);
-                    Cookie pwdCookie = new Cookie("pwd", sqlPassword);
+                    Cookie accCookie = new Cookie("username", sqlEmail);
+                    Cookie pwdCookie = new Cookie("password", sqlPassword);
 
                     accCookie.setMaxAge(60 * 60 * 24);
                     pwdCookie.setMaxAge(60 * 60 * 24);
@@ -60,7 +60,7 @@ public class CheckUserLogin extends HttpServlet {
                 }
 
                 System.out.println("Welcome " + sqlEmail + "!");
-                response.sendRedirect("wallPage.jsp");
+                response.sendRedirect("protected/wallPage.jsp");
             }
 
         } catch (Exception e) {
