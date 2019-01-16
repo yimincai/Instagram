@@ -4,6 +4,9 @@
   Date: 2019/1/15
   Time: 上午 02:41
   To change this template use File | Settings | File Templates.
+// TODO 1:display the pic, post content and comments.
+// TODO 2:impl the comments system.
+// TODO 3:impl the Liked system.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>

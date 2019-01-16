@@ -20,10 +20,10 @@ public class LoginFilter implements Filter {
         String username = String.valueOf(session.getAttribute("username"));
 
         if (username != "null") {
-            System.out.println(username + " pass the LoginFilter");
+            System.out.println("User : '" + username + "' pass the LoginFilter");
             chain.doFilter(req, resp);
         } else {
-            System.out.println("You should not pass the LoginFilter");
+            System.out.println("Anonymous should not pass the LoginFilter");
             HttpServletResponse response = (HttpServletResponse) resp;
             response.sendRedirect("../index.jsp?errMsg=2");
         }

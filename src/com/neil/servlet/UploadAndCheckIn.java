@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,8 +32,26 @@ public class UploadAndCheckIn extends HttpServlet {
     private Connection conn = null;
     private PreparedStatement pstmt = null;
     private String content = null;
+    private ResultSet rs = null;
+    private int MAX_ID;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        try {
+            //check max id from post in post_id
+            conn = ConnectionManager.getConnection();
+            String sqlforId = "SELECT max(post_id) FROM `post`";
+            pstmt = conn.prepareStatement(sqlforId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                MAX_ID = Integer.parseInt(rs.getString("max(post_id)"));
+            }
+            MAX_ID++;
+
+        } catch (Exception e) {
+
+        }
+
 
         //check that we have a file upload request
         boolean isMutipart = ServletFileUpload.isMultipartContent(request);
@@ -71,10 +90,12 @@ public class UploadAndCheckIn extends HttpServlet {
                     content = item.getString(); //content from CheckIn.jsp
 
                 } else {
-                    String fileName = new File(item.getName()).getName();
-                    String filePath = uploadFolder + File.separator + fileName;
+                    String fullFileName = new File(item.getName()).getName();
+                    String[] deputyFileName = fullFileName.split("\\.");
+                    String fileName = String.valueOf(MAX_ID);
+                    String filePath = uploadFolder + File.separator + fileName + "." + deputyFileName[1];
                     File uploadedFile = new File(filePath);
-                    System.out.println(filePath);
+                    System.out.println("Save to filePath: " + filePath);
                     item.write(uploadedFile);
                 }
             }
@@ -94,9 +115,9 @@ public class UploadAndCheckIn extends HttpServlet {
         } else {
 
             try {
-                System.out.println(userId);
-                System.out.println(username);
-                System.out.println(content);
+                System.out.println("PosterID : " + userId);
+                System.out.println("PosterUsername : " + username);
+                System.out.println("The content : " + content);
 
                 String sql = "INSERT INTO `post`(`post_id`, `poster`, `content`, `liked`, `enable`, `posted_timestamp`) VALUES (?, ?, ?, ?, ?, ?)";
                 conn = ConnectionManager.getConnection();
@@ -111,6 +132,9 @@ public class UploadAndCheckIn extends HttpServlet {
                 pstmt.executeUpdate();
 
                 response.sendRedirect("protected/HomePage.jsp");
+
+                pstmt.close();
+                conn.close();
 
             } catch (Exception e) {
 

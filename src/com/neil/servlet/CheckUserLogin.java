@@ -34,7 +34,6 @@ public class CheckUserLogin extends HttpServlet {
 
             String sql = "SELECT * FROM `user` WHERE `email` =" +
                     "'" + username.toString() + "'" + " and `password` = " + "'" + password.toString() + "'";
-            System.out.println(sql);
 
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
