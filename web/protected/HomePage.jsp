@@ -11,13 +11,19 @@
     <title>Wall Blocks</title>
 </head>
 <body>
-<h1 align="center">Wall Blocks</h1>
+<h1 align="center">Home</h1>
 <ul>
     <li><a href="HomePage.jsp">Home</a></li>
     <li><a href="CheckIn.jsp">Check In</a></li>
     <li><a href="Profile.jsp">Profile</a></li>
     <li><a href="Logout.jsp">Logout</a></li>
 </ul>
+<table width="40%" bgcolor="white" align="center">
+    <tr>
+        <td>
+        </td>
+    </tr>
 
+</table>
 </body>
 </html>

@@ -24,6 +24,7 @@ public class CheckUserLogin extends HttpServlet {
 
         String sqlEmail = null;
         String sqlPassword = null;
+        String sqlUserId = null;
 
         try {
 
@@ -31,7 +32,7 @@ public class CheckUserLogin extends HttpServlet {
             String password = request.getParameter("password");
             String checkbox = request.getParameter("remember_me");
 
-            String sql = "SELECT * FROM `users_info` WHERE `email` =" +
+            String sql = "SELECT * FROM `user` WHERE `email` =" +
                     "'" + username.toString() + "'" + " and `password` = " + "'" + password.toString() + "'";
             System.out.println(sql);
 
@@ -41,12 +42,14 @@ public class CheckUserLogin extends HttpServlet {
             while (rs.next()) {
                 sqlEmail = rs.getString("email");
                 sqlPassword = rs.getString("password");
+                sqlUserId = rs.getString("id");
             }
 
 
             if (sqlEmail.equals(username) && sqlPassword.equals(password)) {
                 session.setAttribute("username", sqlEmail);
                 session.setAttribute("password", sqlPassword);
+                session.setAttribute("id", sqlUserId);
 
                 if ("1".equals(checkbox)) {
                     Cookie accCookie = new Cookie("username", sqlEmail);

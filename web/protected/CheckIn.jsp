@@ -1,6 +1,6 @@
 <%--
   Created by IntelliJ IDEA.
-  User: Neil
+  User: bravc
   Date: 2019/1/11
   Time: 下午 08:47
   To change this template use File | Settings | File Templates.
@@ -19,11 +19,11 @@
     <li><a href="Logout.jsp">Logout</a></li>
 </ul>
 <table align="center">
-    <form method="post" action="Upload" enctype="multipart/form-data">
+    <form method="post" action="../UploadAndCheckIn" enctype="multipart/form-data">
         <td>
             <p>Content: </p>
             <textarea name="content" rows="10" cols="100"></textarea><br>
-            <p>Select file to upload :</p>
+            <p>Select image file to upload :</p>
             <input type="file" name="dataFile" id="fileChooser"/><br><br>
             <input type="submit" value="Upload"/>
         </td>

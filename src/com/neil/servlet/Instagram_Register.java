@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @WebServlet(name = "Instagram_Register", urlPatterns = {"/Instagram_Register"})
@@ -19,7 +18,6 @@ public class Instagram_Register extends HttpServlet {
 
     private Connection conn = null;
     private PreparedStatement pstmt = null;
-    private ResultSet rs = null;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -31,7 +29,7 @@ public class Instagram_Register extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String phoneNumber = request.getParameter("phoneNumber");
-        String sql = "insert into `users_info` values (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "insert into `user` values (?, ?, ?, ?, ?, ?, ?, ?)";
 
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() || phoneNumber.isEmpty()) {
             response.sendRedirect("Register.jsp?userInfoError=0");

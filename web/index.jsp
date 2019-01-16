@@ -54,4 +54,8 @@
     if (String.valueOf(reCode).equals("1")) {
         out.println("<span style=\"font-weight: bold\"><p style=\"color: red\">Please try it again after login.</p></span>");
     }
+
+    if (String.valueOf(reCode).equals("2")) {
+        out.println("<span style=\"font-weight: bold\"><p style=\"color: red\">You are logout successfully.</p></span>");
+    }
 %>

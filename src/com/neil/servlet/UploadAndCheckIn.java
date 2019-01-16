@@ -1,5 +1,6 @@
 package com.neil.servlet;
 
+import com.neil.util.ConnectionManager;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -11,19 +12,25 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.Iterator;
 import java.util.List;
 
-@WebServlet(name = "/UploadAndCheckIn", urlPatterns = {"/UploadAndCheckIn"})
+@WebServlet(name = "UploadAndCheckIn", urlPatterns = {"/UploadAndCheckIn"})
 public class UploadAndCheckIn extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-    private static final String DATA_DIRECTORY = "/data";
+    private static final String DATA_DIRECTORY = "/images";
     private static final int MAX_MEMORY_SIZE = 1024 * 1024 * 20;
     private static final int MAX_RESOURCE_SIZE = 1024 * 1024;
     private static FileItem item = null;
+    private Connection conn = null;
+    private PreparedStatement pstmt = null;
+    private String content = null;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -56,24 +63,59 @@ public class UploadAndCheckIn extends HttpServlet {
             Iterator iter = items.iterator();
 
             while (iter.hasNext()) {
-                item = (FileItem) iter.next();
-            }
+                FileItem item = (FileItem) iter.next();
 
-            if (!item.isFormField()) {
-                String fileName = new File(item.getName()).getName();
-                String filePath = uploadFolder + File.separator + fileName;
-                File uploadedFile = new File(filePath);
-                System.out.println(filePath);
-                //saves the file to upload directory
-                item.write(uploadedFile);
-            }
+                if (item.isFormField()) {
 
-            //displays done.jsp pafe after upload finished
-            getServletContext().getRequestDispatcher("/done.jsp").forward(request, response);
+                    String name = item.getFieldName();
+                    content = item.getString(); //content from CheckIn.jsp
+
+                } else {
+                    String fileName = new File(item.getName()).getName();
+                    String filePath = uploadFolder + File.separator + fileName;
+                    File uploadedFile = new File(filePath);
+                    System.out.println(filePath);
+                    item.write(uploadedFile);
+                }
+            }
         } catch (FileUploadException e) {
             throw new ServletException(e);
         } catch (Exception e) {
             throw new ServletException(e);
+        }
+
+        //start to insert content to DB
+        HttpSession session = request.getSession();
+        String username = String.valueOf(session.getAttribute("username"));
+        String userId = String.valueOf(session.getAttribute("id"));
+
+        if (username.isEmpty() || userId.isEmpty()) {
+            response.sendRedirect("index.jsp?errMsg=1");
+        } else {
+
+            try {
+                System.out.println(userId);
+                System.out.println(username);
+                System.out.println(content);
+
+                String sql = "INSERT INTO `post`(`post_id`, `poster`, `content`, `liked`, `enable`, `posted_timestamp`) VALUES (?, ?, ?, ?, ?, ?)";
+                conn = ConnectionManager.getConnection();
+                pstmt = conn.prepareStatement(sql);
+
+                pstmt.setString(1, null);
+                pstmt.setString(2, userId);
+                pstmt.setString(3, content);
+                pstmt.setString(4, "0");
+                pstmt.setString(5, "1");
+                pstmt.setString(6, null);
+                pstmt.executeUpdate();
+
+                response.sendRedirect("protected/HomePage.jsp");
+
+            } catch (Exception e) {
+
+                System.out.println(e.toString());
+            }
         }
     }
 }

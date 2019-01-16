@@ -25,7 +25,7 @@ public class LoginFilter implements Filter {
         } else {
             System.out.println("You should not pass the LoginFilter");
             HttpServletResponse response = (HttpServletResponse) resp;
-            response.sendRedirect("../index.jsp?errMsg=1");
+            response.sendRedirect("../index.jsp?errMsg=2");
         }
     }
 
