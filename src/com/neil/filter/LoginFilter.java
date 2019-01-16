@@ -18,13 +18,12 @@ public class LoginFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpSession session = request.getSession();
         String username = String.valueOf(session.getAttribute("username"));
-        System.out.println("Username:  " + username);
 
         if (username != "null") {
-            System.out.println("放行");
+            System.out.println(username + " pass the LoginFilter");
             chain.doFilter(req, resp);
         } else {
-            System.out.println("阻擋");
+            System.out.println("You should not pass the LoginFilter");
             HttpServletResponse response = (HttpServletResponse) resp;
             response.sendRedirect("../index.jsp?errMsg=1");
         }

@@ -32,7 +32,7 @@
         </tr>
         <tr>
             <td>Didn't have account?</td>
-            <td><a href="register.jsp">Register here!</a></td>
+            <td><a href="Register.jsp">Register here!</a></td>
         </tr>
     </table>
 

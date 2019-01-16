@@ -1,6 +1,6 @@
-package com.neil.util;
+package com.neil.servlet;
 
-import com.neil.servlet.ConnectionManager;
+import com.neil.util.ConnectionManager;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -60,7 +60,7 @@ public class CheckUserLogin extends HttpServlet {
                 }
 
                 System.out.println("Welcome " + sqlEmail + "!");
-                response.sendRedirect("protected/wallPage.jsp");
+                response.sendRedirect("protected/HomePage.jsp");
             }
 
         } catch (Exception e) {

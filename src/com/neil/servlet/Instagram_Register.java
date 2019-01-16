@@ -1,5 +1,7 @@
 package com.neil.servlet;
 
+import com.neil.util.ConnectionManager;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,7 +34,7 @@ public class Instagram_Register extends HttpServlet {
         String sql = "insert into `users_info` values (?, ?, ?, ?, ?, ?, ?, ?)";
 
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() || phoneNumber.isEmpty()) {
-            response.sendRedirect("register.jsp?userInfoError=0");
+            response.sendRedirect("Register.jsp?userInfoError=0");
         } else {
 
             try {
@@ -52,7 +54,7 @@ public class Instagram_Register extends HttpServlet {
 
                 if (i > 0) {
                     out.println("Register successfully" + "<br>");
-                    out.println("Plese check your email to active the account ...");
+                    out.println("Please check your email to active the account ...");
                 }
 
 
