@@ -1,4 +1,4 @@
-package com.neil.servlet.servlet;
+package com.neil.servlet;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

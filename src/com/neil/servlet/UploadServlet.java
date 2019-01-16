@@ -1,4 +1,4 @@
-package com.neil.servlet.servlet;
+package com.neil.servlet;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;

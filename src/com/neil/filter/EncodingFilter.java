@@ -1,4 +1,4 @@
-package com.neil.servlet.filter;
+package com.neil.filter;
 
 import javax.servlet.*;
 import java.io.IOException;

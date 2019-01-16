@@ -1,4 +1,4 @@
-package com.neil.servlet.filter;
+package com.neil.filter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -28,15 +28,6 @@ public class LoginFilter implements Filter {
             HttpServletResponse response = (HttpServletResponse) resp;
             response.sendRedirect("../index.jsp?errMsg=1");
         }
-    }
-
-    public static boolean isEmpty(String s) {
-        // Null-safe, short-circuit evaluation.
-        return s == null || s.trim().isEmpty();
-    }
-
-    public static boolean isNotEmpty(String s) {
-        return s != null;
     }
 
     public void init(FilterConfig config) throws ServletException {

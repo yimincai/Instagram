@@ -1,4 +1,4 @@
-package com.neil.servlet.servlet;
+package com.neil.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

@@ -1,6 +1,6 @@
-package com.neil.servlet.util;
+package com.neil.util;
 
-import com.neil.servlet.servlet.ConnectionManager;
+import com.neil.servlet.ConnectionManager;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
