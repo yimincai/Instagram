@@ -2,8 +2,6 @@ package com.neil.servlet;
 
 import com.neil.util.ConnectionManager;
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
@@ -18,27 +16,38 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Iterator;
 import java.util.List;
 
-@WebServlet(name = "UploadAndCheckIn", urlPatterns = {"/UploadAndCheckIn"})
+
+/**
+ * Servlet implementation class UploadServlet
+ */
+@WebServlet(name = "/UploadServlet", urlPatterns = {"/UploadAndCheckIn"})
 public class UploadAndCheckIn extends HttpServlet {
-
     private static final long serialVersionUID = 1L;
-    private static final String DATA_DIRECTORY = "/images";
-    private static final int MAX_MEMORY_SIZE = 1024 * 1024 * 20;
-    private static final int MAX_RESOURCE_SIZE = 1024 * 1024;
-    private static FileItem item = null;
-    private Connection conn = null;
-    private PreparedStatement pstmt = null;
-    private String content = null;
-    private ResultSet rs = null;
-    private int MAX_ID;
 
+    // 上傳儲存目錄
+    private static final String UPLOAD_DIRECTORY = "images";
+
+    // 上傳內容設定
+    private static final int MEMORY_THRESHOLD = 1024 * 1024 * 30;  // 30MB
+    private static final int MAX_FILE_SIZE = 1024 * 1024 * 40; // 40MB
+    private static final int MAX_REQUEST_SIZE = 1024 * 1024 * 50; // 50MB
+
+    // 查詢post_id & insert content to DB設定
+    private static Connection conn = null;
+    private static PreparedStatement pstmt = null;
+    private static ResultSet rs = null;
+    private static int MAX_ID;
+    private static String content;
+
+    /**
+     * 上傳數據及保存文件
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        //查詢max(post_id)
         try {
-            //check max id from post in post_id
             conn = ConnectionManager.getConnection();
             String sqlforId = "SELECT max(post_id) FROM `post`";
             pstmt = conn.prepareStatement(sqlforId);
@@ -47,63 +56,80 @@ public class UploadAndCheckIn extends HttpServlet {
                 MAX_ID = Integer.parseInt(rs.getString("max(post_id)"));
             }
             MAX_ID++;
-
+            rs.close();
+            pstmt.close();
+            conn.close();
         } catch (Exception e) {
-
+            System.out.println(e.toString());
         }
 
-
-        //check that we have a file upload request
-        boolean isMutipart = ServletFileUpload.isMultipartContent(request);
-
-        if (!isMutipart) {
+        // 若為多文件上傳，停止
+        if (!ServletFileUpload.isMultipartContent(request)) {
             return;
         }
 
-        //create a factory for disk-based file items
+        // 設定上傳參數
         DiskFileItemFactory factory = new DiskFileItemFactory();
-        //sets the size threshold beyond which files are written directly to disk
-        factory.setSizeThreshold(MAX_MEMORY_SIZE);
+        // 設定儲存臨界值 - 超過後將產生臨時文件並儲存於臨時目錄中
+        factory.setSizeThreshold(MEMORY_THRESHOLD);
+        // 設定臨時儲存目錄
+        factory.setRepository(new File(System.getProperty("java.io.tmpdir")));
 
-        //constructs the folder there uploaded file will be store
-        String uploadFolder = getServletContext().getRealPath("") +
-                File.separator + DATA_DIRECTORY;
+        ServletFileUpload upload = new ServletFileUpload(factory);
 
-        FileItemFactory fileItemFactory = new DiskFileItemFactory();
+        // 設定文件最大上傳值
+        upload.setFileSizeMax(MAX_FILE_SIZE);
 
-        //sets the directory used to temporally store files that are larger
-        //than the configured size threshold. we use temporary directory for java
-        ServletFileUpload upload = new ServletFileUpload(fileItemFactory);
-        //set overall request size constraint
-        upload.setSizeMax(MAX_RESOURCE_SIZE);
+        // 設定最大請求值 (包含文件及檔案數據)
+        upload.setSizeMax(MAX_REQUEST_SIZE);
+
+        // 中文處理
+        upload.setHeaderEncoding("UTF-8");
+
+        // 建構臨時路徑來儲存上傳的文件
+        // 這個路徑相對當前應用的目錄
+        String uploadPath = getServletContext().getRealPath("/") + File.separator + UPLOAD_DIRECTORY;
+
+
+        // 如果目錄不存在則創建
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdir();
+        }
+
         try {
-            //parse the request
-            List items = upload.parseRequest(request);
-            Iterator iter = items.iterator();
+            // 解析請求的內容提取文件數據
+            @SuppressWarnings("unchecked")
+            List<FileItem> formItems = upload.parseRequest(request);
 
-            while (iter.hasNext()) {
-                FileItem item = (FileItem) iter.next();
+            if (formItems != null && formItems.size() > 0) {
+                // 迭代表單數據
+                for (FileItem item : formItems) {
+                    // 處理不在表單中的字串
 
-                if (item.isFormField()) {
+                    if (item.isFormField()) {
+                        content = item.getString();
+                    }
 
-                    String name = item.getFieldName();
-                    content = item.getString(); //content from CheckIn.jsp
-
-                } else {
-                    String fullFileName = new File(item.getName()).getName();
-                    String[] deputyFileName = fullFileName.split("\\.");
-                    String fileName = String.valueOf(MAX_ID);
-                    String filePath = uploadFolder + File.separator + fileName + "." + deputyFileName[1];
-                    File uploadedFile = new File(filePath);
-                    System.out.println("Save to filePath: " + filePath);
-                    item.write(uploadedFile);
+                    if (!item.isFormField()) {
+                        String fullFileName = new File(item.getName()).getName();
+                        String[] subFileName = fullFileName.split("\\.");
+                        String fileName = String.valueOf(MAX_ID);
+                        String filePath = uploadPath + File.separator + fileName + "." + subFileName[1];
+                        File storeFile = new File(filePath);
+                        // 輸出上傳文件路徑
+                        System.out.println("Save file to : " + filePath);
+                        // 儲存文件到路徑
+                        item.write(storeFile);
+                        request.setAttribute("message", "文件上傳成功!");
+                    }
                 }
             }
-        } catch (FileUploadException e) {
-            throw new ServletException(e);
-        } catch (Exception e) {
-            throw new ServletException(e);
+        } catch (Exception ex) {
+            request.setAttribute("message",
+                    "錯誤訊息: " + ex.getMessage());
         }
+
 
         //start to insert content to DB
         HttpSession session = request.getSession();
@@ -135,9 +161,7 @@ public class UploadAndCheckIn extends HttpServlet {
 
                 pstmt.close();
                 conn.close();
-
             } catch (Exception e) {
-
                 System.out.println(e.toString());
             }
         }
