@@ -13,8 +13,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-@WebServlet(name = "InsertComments", urlPatterns = {"/InsertComments"})
-public class InertComments extends HttpServlet {
+@WebServlet(name = "InsertCommentsForProfile", urlPatterns = {"/InsertCommentsForProfile"})
+public class InsertCommentsForProfile extends HttpServlet {
 
     private Connection conn = null;
     private PreparedStatement pstmt = null;
@@ -40,7 +40,7 @@ public class InertComments extends HttpServlet {
             pstmt.setString(5, null);
             pstmt.executeUpdate();
 
-            response.sendRedirect("protected/HomePage.jsp");
+            response.sendRedirect("protected/Profile.jsp");
 
         } catch (Exception e) {
             System.out.println(e.toString());

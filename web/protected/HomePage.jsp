@@ -13,8 +13,9 @@
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
+<%@ page import="java.util.HashMap" %>
 <%
-    int id = 0;
+    int maxId = 0;
     String content = null;
     String sqlGetID = "SELECT max(post_id) from `post`";
     Connection conn = ConnectionManager.getConnection();
@@ -24,10 +25,11 @@
     try {
 
         while (rs.next()) {
-            id = Integer.parseInt(rs.getString("max(post_id)"));
+            maxId = Integer.parseInt(rs.getString("max(post_id)"));
         }
-        pstmt.close();
         rs.close();
+        pstmt.close();
+        conn.close();
     } catch (Exception e) {
         System.out.println(e.toString());
     }
@@ -45,17 +47,44 @@
     <li><a href="Logout.jsp">Logout</a></li>
 </ul>
 <%
-    for (int i = id; i > 0; i--) {
+    String leave_userid = null;
+    String message = null;
+    HashMap userIDandMessage = new HashMap();
+
+    for (int i = maxId; i > 0; i--) {
+
+        String sqlGetComments = "SELECT * FROM user, comments WHERE comments.leave_userid = user.id and comments.post_id = ?";
+        conn = ConnectionManager.getConnection();
+        pstmt = conn.prepareStatement(sqlGetComments);
+        pstmt.setString(1, String.valueOf(i));
+        rs = pstmt.executeQuery();
+
+
+        int count = 0;
+        while (rs.next()) {
+            count++;
+            leave_userid = rs.getString("email");
+            message = rs.getString("message");
+            userIDandMessage.put(count, leave_userid + " : " + message);
+        }
+
+        rs.close();
+        pstmt.close();
+        conn.close();
+
         out.print("    <div align=\"center\">\n" +
-                "        <img src=\"../images/");
-        out.print(i);
+                "        <img src=\"../images/" + i);
         out.print(".jpg\" height=\"500\"><br><br>\n" +
                 "        <form action=\"../InsertComments\" method=\"POST\">\n" +
                 "            <input type=\"text\" name=\"comment\" size=\"70\">\n" +
-                "            <input type=\"submit\" value=\"comment\"><br>\n<input type=\"hidden\" name=\"id\" value=\"");
-        out.print(i);
+                "            <input type=\"submit\" value=\"comment\"><br>\n<input type=\"hidden\" name=\"id\" value=\"" + i);
         out.print("\"><br>" +
-                "            <p>${username}:aaa</p>\n" +
+                "            <p>");
+        for (Object key : userIDandMessage.keySet()) {
+            out.print(userIDandMessage.get(key) + "<br>");
+            System.out.println(userIDandMessage.get(key) + " : " + key);
+        }
+        out.print("</p>\n" +
                 "        </form>\n" +
                 "    </div>");
     }
