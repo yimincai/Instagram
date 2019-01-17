@@ -14,6 +14,8 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashMap" %>
 <%
+    String posterContent = null;
+    String posterEmail = null;
     HttpSession session1 = (HttpSession) request.getSession();
     String profileUser = String.valueOf(session1.getAttribute("id"));
 
@@ -39,6 +41,8 @@
     } catch (Exception e) {
         System.out.println(e.toString());
     }
+
+
 %>
 <html>
 <head>
@@ -84,6 +88,20 @@
             System.out.println(e.toString());
         }
 
+        try {
+            String sqlGetPosterContent = "SELECT * FROM `post`, user WHERE `post`.`poster`= user.id AND post.post_id = ?";
+            conn = ConnectionManager.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement(sqlGetPosterContent);
+            preparedStatement.setString(1, String.valueOf(profilePostList.get(y - 1)));
+            rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                posterContent = rs.getString("content");
+                posterEmail = rs.getString("email");
+            }
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+
         System.out.printf("222222222222" + profilePostList.get(y - 1));
 
         out.print("    <div align=\"center\">\n" +
@@ -92,7 +110,7 @@
                 "        <form action=\"../InsertCommentsForProfile\" method=\"POST\">\n" +
                 "            <input type=\"text\" name=\"comment\" size=\"70\">\n" +
                 "            <input type=\"submit\" value=\"comment\"><br>\n<input type=\"hidden\" name=\"id\" value=\"" + profilePostList.get(y - 1));
-        out.print("\"><br>" +
+        out.print("\"><br>" + "Poster: " + posterEmail + " : " + posterContent +
                 "            <p>");
         for (Object key : userIDandMessage.keySet()) {
             out.print(userIDandMessage.get(key) + "<br>");

@@ -53,24 +53,45 @@
 
     for (int i = maxId; i > 0; i--) {
 
-        String sqlGetComments = "SELECT * FROM user, comments WHERE comments.leave_userid = user.id and comments.post_id = ?";
-        conn = ConnectionManager.getConnection();
-        pstmt = conn.prepareStatement(sqlGetComments);
-        pstmt.setString(1, String.valueOf(i));
-        rs = pstmt.executeQuery();
+        try {
+            String sqlGetComments = "SELECT * FROM user, comments WHERE comments.leave_userid = user.id and comments.post_id = ?";
+            conn = ConnectionManager.getConnection();
+            pstmt = conn.prepareStatement(sqlGetComments);
+            pstmt.setString(1, String.valueOf(i));
+            rs = pstmt.executeQuery();
 
 
-        int count = 0;
-        while (rs.next()) {
-            count++;
-            leave_userid = rs.getString("email");
-            message = rs.getString("message");
-            userIDandMessage.put(count, leave_userid + " : " + message);
+            int count = 0;
+            while (rs.next()) {
+                count++;
+                leave_userid = rs.getString("email");
+                message = rs.getString("message");
+                userIDandMessage.put(count, leave_userid + " : " + message);
+            }
+
+            rs.close();
+            pstmt.close();
+            conn.close();
+        } catch (Exception e) {
+            System.out.println(e.toString());
         }
 
-        rs.close();
-        pstmt.close();
-        conn.close();
+        String posterContent = null;
+        String posterEmail = null;
+
+        try {
+            String sqlGetPosterContent = "SELECT * FROM `post`, user WHERE `post`.`poster`= user.id AND post.post_id = ?";
+            conn = ConnectionManager.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement(sqlGetPosterContent);
+            preparedStatement.setString(1, String.valueOf(i));
+            rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                posterContent = rs.getString("content");
+                posterEmail = rs.getString("email");
+            }
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
 
         out.print("    <div align=\"center\">\n" +
                 "        <img src=\"../images/" + i);
@@ -78,7 +99,7 @@
                 "        <form action=\"../InsertComments\" method=\"POST\">\n" +
                 "            <input type=\"text\" name=\"comment\" size=\"70\">\n" +
                 "            <input type=\"submit\" value=\"comment\"><br>\n<input type=\"hidden\" name=\"id\" value=\"" + i);
-        out.print("\"><br>" +
+        out.print("\"><br>" + "Poster: " + posterEmail + " : " + posterContent +
                 "            <p>");
         for (Object key : userIDandMessage.keySet()) {
             out.print(userIDandMessage.get(key) + "<br>");
